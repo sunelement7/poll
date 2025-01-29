@@ -29,52 +29,40 @@ vote_button_id = "pd-vote-button14975029"
 count = 0  # Vote counter
 
 # Function to perform the vote action
-def vote(tab_driver):
+def vote():
+    global count
     try:
-        tab_driver.get(url)
+        driver.get(url)
         time.sleep(1.5)
 
         # Find and click the radio button
-        radio_button = tab_driver.find_element(By.ID, radio_button_id)
-        actions = ActionChains(tab_driver)
+        radio_button = driver.find_element(By.ID, radio_button_id)
+        actions = ActionChains(driver)
         actions.move_to_element(radio_button).perform()
         time.sleep(random.uniform(0.5, 1.5))
         actions.click(radio_button).perform()
 
         # Find and click the vote button
-        vote_button = tab_driver.find_element(By.ID, vote_button_id)
+        vote_button = driver.find_element(By.ID, vote_button_id)
         actions.move_to_element(vote_button).perform()
         time.sleep(random.uniform(0.5, 1.5))
         actions.click(vote_button).perform()
 
-        global count
         count += 1
         print(f"Vote #{count} submitted!")
 
         # Check if vote was successful
-        if "revoted" in tab_driver.current_url:
+        if "revoted" in driver.current_url:
             print("Cooldown triggered, waiting 60 seconds...")
             time.sleep(60)
 
     except Exception as e:
         print(f"Error: {e}")
 
-# Function to open 5 tabs and perform voting
-def vote_in_batches(num_votes):
-    tabs = [webdriver.Chrome(service=service, options=chrome_options) for _ in range(5)]
-    
-    for _ in range(num_votes // 5):
-        for tab in tabs:
-            vote(tab)
+# Loop to keep voting until stopped
+while True:
+    vote()
+    time.sleep(random.uniform(2, 5))  # Small delay between votes
 
-    # Close all tabs
-    for tab in tabs:
-        tab.quit()
-
-# Set the number of votes
-num_votes = 1000  # Change this to the desired number of votes
-
-vote_in_batches(num_votes)
-
-# Close the browser
+# Close the browser when done (won't be reached unless manually stopped)
 driver.quit()
